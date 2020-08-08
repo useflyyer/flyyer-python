@@ -24,9 +24,9 @@ pip install flayyer
 
 ## Usage
 
-After installing the gem you can format URL as:
+After installing the package you can format URL as:
 
-```ruby
+```python
 from flayyer import Flayyer
 
 flayyer = Flayyer(
@@ -43,7 +43,7 @@ url = flayyer.href
 
 Variables can be complex arrays and hashes.
 
-```ruby
+```python
 flayyer = Flayyer(
     tenant="tenant",
     deck="deck",
@@ -61,7 +61,7 @@ flayyer = Flayyer(
 
 To decode the URL for debugging purposes:
 
-```ruby
+```python
 from urllib.parse import unquote
 
 print(unquote(url))
