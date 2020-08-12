@@ -37,7 +37,7 @@ flayyer = Flayyer(
 )
 
 # Use this image in your <head/> tags
-url = flayyer.href
+url = flayyer.href()
 # > https://flayyer.host/v2/tenant/deck/template.jpeg?__v=1596906866&title=Hello+world%21
 ```
 
@@ -76,10 +76,21 @@ Prepare the local environment:
 poetry install
 ```
 
-Run tests with pylint:
+```sh
+poetry shell
+```
+
+Run tests with pytest:
 
 ```sh
-pylint
+pytest
+```
+
+Deploy with:
+
+```sh
+poetry build
+poetry publish
 ```
 
 ## Contributing

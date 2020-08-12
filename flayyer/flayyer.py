@@ -20,18 +20,17 @@ class Flayyer:
         self.extension = extension
         self.variables = variables if variables else {}
 
-    @property
     def querystring(self) -> str:
         defaults = {
             "__v": str(int(time())),  # This forces crawlers to refresh the image
         }
         return to_query({**defaults, **self.variables})
 
-    @property
     def href(self) -> str:
+        query = self.querystring()
         if self.version:
-            return f"https://flayyer.host/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{self.querystring}"
-        return f"https://flayyer.host/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{self.querystring}"
+            return f"https://flayyer.host/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
+        return f"https://flayyer.host/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
 
 
 # From https://stackoverflow.com/a/43347067/3416691
