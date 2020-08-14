@@ -89,6 +89,10 @@ pytest
 Deploy with:
 
 ```sh
+# Set API Token
+poetry config pypi-token.pypi pypi-TOKEN
+
+poetry version X.Y.Z
 poetry build
 poetry publish
 ```

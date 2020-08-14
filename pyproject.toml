@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flayyer"
-version = "0.1.0"
+version = "0.2.0"
 description = "FLAYYER.com helper classes and methods"
 authors = ["Patricio López Juri <patricio@flayyer.com>"]
 license = "MIT"
