@@ -15,7 +15,7 @@ def test_url_encoding():
         variables={"title": "Hello world!"},
     )
     href = flayyer.href()
-    assert href.startswith("https://flayyer.host/v2/tenant/deck/template.jpeg?__v=")
+    assert href.startswith("https://flayyer.io/v2/tenant/deck/template.jpeg?__v=")
     assert href.endswith("&title=Hello+world%21")
 
 

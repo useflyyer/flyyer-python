@@ -29,8 +29,8 @@ class Flayyer:
     def href(self) -> str:
         query = self.querystring()
         if self.version:
-            return f"https://flayyer.host/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
-        return f"https://flayyer.host/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
+            return f"https://flayyer.io/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
+        return f"https://flayyer.io/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
 
 
 # From https://stackoverflow.com/a/43347067/3416691

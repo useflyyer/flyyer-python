@@ -1,6 +1,5 @@
 {
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
-  "python.pythonPath": "/Users/patriciolopez/Library/Caches/pypoetry/virtualenvs/flayyer-Obu4zFH--py3.6/bin/python",
   "python.formatting.provider": "black"
 }
