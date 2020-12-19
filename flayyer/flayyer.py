@@ -1,7 +1,7 @@
 from time import time
 from urllib.parse import urlencode
-from typing import TypedDict, Optional, Mapping, Union, Any
-
+from typing import Optional, Mapping, Union, Any
+from typing_extensions import TypedDict
 
 class FlayyerMeta(TypedDict, total=False):
     agent: str
