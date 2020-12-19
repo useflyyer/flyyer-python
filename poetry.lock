@@ -288,7 +288,7 @@ python-versions = "*"
 version = "1.4.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
 optional = false
@@ -325,7 +325,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "jaraco.test (>=3.2.0)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [metadata]
-content-hash = "7ba4f37e784714beb462047296d723e350b97e7cc9a11c00617de627640f3acb"
+content-hash = "1989b6204db471961ff39837ca199ed9e6f37bba49649bd4214796e7b350e6ed"
 lock-version = "1.0"
 python-versions = "^3.6"
 

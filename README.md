@@ -6,6 +6,8 @@ This module is agnostic to any Python framework and has zero external dependenci
 
 To create a FLAYYER template please refer to: [flayyer.com](https://flayyer.com?ref=flayyer-python)
 
+This module requires Python >=3.6
+
 ## Installation
 
 Install it with [Poetry](https://python-poetry.org/), the modern package manager.
