@@ -44,6 +44,8 @@ url = flayyer.href()
 Variables can be complex arrays and hashes.
 
 ```python
+from flayyer import Flayyer, FlayyerMeta
+
 flayyer = Flayyer(
     tenant="tenant",
     deck="deck",
@@ -54,6 +56,9 @@ flayyer = Flayyer(
             { "text": "Apples", "count": 14 },
         ],
     },
+    meta=FlayyerMeta(
+        id="slug-or-id", # To identify the resource in our analytics report
+    ),
 )
 ```
 
@@ -84,6 +89,12 @@ Run tests with pytest:
 
 ```sh
 pytest
+```
+
+Run [black](https://github.com/psf/black) linter:
+
+```sh
+black .
 ```
 
 Deploy with:
