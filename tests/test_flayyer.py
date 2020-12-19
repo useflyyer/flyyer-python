@@ -18,6 +18,7 @@ def test_url_encoding():
     assert href.startswith("https://flayyer.io/v2/tenant/deck/template.jpeg?__v=")
     assert href.endswith("&title=Hello+world%21")
 
+
 def test_meta_parameters():
     flayyer = Flayyer(
         tenant="tenant",
@@ -38,6 +39,7 @@ def test_meta_parameters():
     assert href.find("&_w=100") != -1
     assert href.find("&_h=200") != -1
     assert href.find("&__id=dev+forgot+to+slugify") != -1
+
 
 def test_simple_stringify():
     data = {"a": "hello", "b": 100, "c": False, "d": None, "b": 999}

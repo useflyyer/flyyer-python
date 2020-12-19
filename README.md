@@ -91,6 +91,12 @@ Run tests with pytest:
 pytest
 ```
 
+Run [black](https://github.com/psf/black) linter:
+
+```sh
+black .
+```
+
 Deploy with:
 
 ```sh

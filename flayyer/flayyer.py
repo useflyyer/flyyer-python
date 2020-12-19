@@ -2,6 +2,7 @@ from time import time
 from urllib.parse import urlencode
 from typing import TypedDict, Optional, Mapping, Union, Any
 
+
 class FlayyerMeta(TypedDict, total=False):
     agent: str
     width: Union[str, int]
@@ -9,6 +10,7 @@ class FlayyerMeta(TypedDict, total=False):
     resolution: Union[str, int]
     id: Union[str, int]
     v: Union[str, int]
+
 
 class Flayyer:
     def __init__(
@@ -19,7 +21,7 @@ class Flayyer:
         version: Optional[int] = None,
         extension: str = "jpeg",
         variables: Optional[Mapping[Any, Any]] = None,
-        meta: Optional[FlayyerMeta] = None
+        meta: Optional[FlayyerMeta] = None,
     ):
         self.tenant = tenant
         self.deck = deck
@@ -31,7 +33,9 @@ class Flayyer:
 
     def querystring(self) -> str:
         defaults = {
-            "__v": self.meta.get("v", str(int(time()))),  # This forces crawlers to refresh the image
+            "__v": self.meta.get(
+                "v", str(int(time()))
+            ),  # This forces crawlers to refresh the image
             "__id": self.meta.get("id"),
             "_w": self.meta.get("width"),
             "_h": self.meta.get("height"),
