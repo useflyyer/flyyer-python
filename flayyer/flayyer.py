@@ -50,6 +50,9 @@ class Flayyer:
             return f"https://flayyer.io/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
         return f"https://flayyer.io/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
 
+    def __str__(self):
+        return self.href()
+
 
 # From https://stackoverflow.com/a/43347067/3416691
 # Alternative: https://stackoverflow.com/a/4014164/3416691
