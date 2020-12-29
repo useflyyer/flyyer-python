@@ -62,7 +62,7 @@ def to_query(params: Mapping[Any, Any]) -> str:
     def _encode_params(params, p_key=None):
         encode_params = {}
         if params is None:
-            g_encode_params[p_key] = ""  # Empty
+            pass # skip
         elif isinstance(params, dict):
             for key in params:
                 encode_key = "{}[{}]".format(p_key, key)

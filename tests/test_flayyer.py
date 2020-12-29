@@ -40,12 +40,13 @@ def test_meta_parameters():
     assert href.find("&_w=100") != -1
     assert href.find("&_h=200") != -1
     assert href.find("&__id=dev+forgot+to+slugify") != -1
+    assert href.find("&_res=") == -1
 
 
 def test_simple_stringify():
     data = {"a": "hello", "b": 100, "c": False, "d": None, "b": 999}
     result = to_query(data)
-    assert result == "a=hello&b=999&c=false&d="
+    assert result == "a=hello&b=999&c=false"
 
 
 def test_complex_stringify():
