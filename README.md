@@ -90,7 +90,7 @@ poetry shell
 Run tests with pytest:
 
 ```sh
-pytest
+poetry run pytest
 ```
 
 Run [black](https://github.com/psf/black) linter:
