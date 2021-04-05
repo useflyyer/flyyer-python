@@ -113,7 +113,7 @@ class FlayyerAI:
         key = self.secret.encode("ASCII")
         data = (self.project + self.path + self.querystring(True)).encode("ASCII")
         if (self.strategy and self.strategy.lower() == "hmac"):
-            return hmac.new(key, data, sha256).hexdigest()[0:16]
+            return hmac.new(key, data, sha256).hexdigest()[:16]
         elif (self.strategy and self.strategy.lower() == "jwt"):
             return "_"
 
