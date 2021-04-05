@@ -2,6 +2,8 @@ from time import time
 from urllib.parse import urlencode
 from typing import Optional, Mapping, Union, Any
 from typing_extensions import TypedDict
+from hashlib import sha256
+import hmac
 
 class FlayyerMeta(TypedDict, total=False):
     agent: str
@@ -100,17 +102,20 @@ class FlayyerAI:
                 "_res": self.meta.get("resolution"),
                 "_ua": self.meta.get("agent"),
             }
-        aux = to_query({**defaults, **self.variables}).split("&")
-        aux.sort()
-        return "&".join(aux)
+            aux = to_query({**defaults, **self.variables}).split("&")
+            aux.sort()
+            return "&".join(aux)
 
     def sign(self) -> str:
+        # strategy & secret consistency checked on init
         if (self.strategy == None):
             return "_"
-        elif (self.strategy and self.strategy.lower() == "hmac"):
-            pass
+        key = self.secret.encode("ASCII")
+        data = (self.project + self.path + self.querystring(True)).encode("ASCII")
+        if (self.strategy and self.strategy.lower() == "hmac"):
+            return hmac.new(key, data, sha256).hexdigest()[0:16]
         elif (self.strategy and self.strategy.lower() == "jwt"):
-            pass
+            return "_"
 
     def href(self) -> str:
         query = self.querystring()
