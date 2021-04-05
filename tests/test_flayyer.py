@@ -1,6 +1,7 @@
 from urllib.parse import unquote
+from re import match
 
-from flayyer import __version__, Flayyer, FlayyerMeta, to_query
+from flayyer import __version__, Flayyer, FlayyerMeta, to_query, FlayyerAI
 
 
 def test_version():
@@ -53,3 +54,29 @@ def test_complex_stringify():
     data = {"a": {"aa": "bar", "ab": "foo"}, "b": [{"c": "foo"}, {"c": "bar"}]}
     result = to_query(data)
     assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
+
+def test_url_encoding_ai():
+    flayyer = FlayyerAI(
+        project="project",
+        path="/path/to/product",
+        variables={"title": "Hello world!"},
+    )
+    href = flayyer.href()
+    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product", href) != None
+
+
+def test_meta_parameters_ai():
+    flayyer = FlayyerAI(
+        project="project",
+        path="/path/to/product",
+        variables={"title": "title"},
+        meta=FlayyerMeta(
+            agent="whatsapp",
+            v="123123",
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
+    )
+    href = flayyer.href()
+    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_ua=whatsapp&_w=100&title=title\/path\/to\/product", href) != None
