@@ -58,14 +58,14 @@ class FlayyerAI:
     def __init__(
         self,
         project: str,
-        path: str,
+        path: Optional[str] = "/",
         secret: Optional[str] = None,
         strategy: Optional[str] = None,
         variables: Optional[Mapping[Any, Any]] = None,
         meta: Optional[FlayyerMeta] = None,
     ):
         self.project = project
-        self.path = path if path else "/"
+        self.path = path if path.startswith("/") else "/" + path
         self.secret = secret
         self.strategy = strategy
         self.variables = variables if variables else {}
@@ -73,7 +73,9 @@ class FlayyerAI:
         if (strategy and strategy.lower() != "hmac" and strategy.lower() != "jwt"):
           raise Exception("Invalid `strategy`. Valid options are `HMAC` or `JWT`.")
         if (strategy and not secret):
-          raise Exception("Missing `secret`. You can find it on your project in Advanced settings.")
+          raise Exception("Missing `secret`. You can find it in your project in Advanced settings.")
+        if (secret and not strategy):
+          raise Exception("Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`.")
 
     def querystring(self, ignoreV=False) -> str:
         if (not ignoreV):
