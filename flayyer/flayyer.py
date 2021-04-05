@@ -79,7 +79,7 @@ class FlayyerAI:
         if (secret and not strategy):
           raise Exception("Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`.")
 
-    def querystring(self, ignoreV=False) -> str:
+    def default_hash(self, ignoreV) -> str:
         defaults = {
             "__v": self.meta.get(
                 "v", str(int(time()))
@@ -92,6 +92,10 @@ class FlayyerAI:
         }
         if (ignoreV):
             defaults.pop("__v", None)
+        return defaults
+
+    def querystring(self, ignoreV=False) -> str:
+        defaults = self.default_hash(ignoreV)
         aux = to_query({**defaults, **self.variables}).split("&")
         aux.sort()
         return "&".join(aux)
