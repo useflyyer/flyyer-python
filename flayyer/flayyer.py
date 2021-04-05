@@ -80,31 +80,21 @@ class FlayyerAI:
           raise Exception("Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`.")
 
     def querystring(self, ignoreV=False) -> str:
-        if (not ignoreV):
-            defaults = {
-                "__v": self.meta.get(
-                    "v", str(int(time()))
-                ),  # This forces crawlers to refresh the image
-                "__id": self.meta.get("id"),
-                "_w": self.meta.get("width"),
-                "_h": self.meta.get("height"),
-                "_res": self.meta.get("resolution"),
-                "_ua": self.meta.get("agent"),
-            }
-            aux = to_query({**defaults, **self.variables}).split("&")
-            aux.sort()
-            return "&".join(aux)
-        else:
-            defaults = {
-                "__id": self.meta.get("id"),
-                "_w": self.meta.get("width"),
-                "_h": self.meta.get("height"),
-                "_res": self.meta.get("resolution"),
-                "_ua": self.meta.get("agent"),
-            }
-            aux = to_query({**defaults, **self.variables}).split("&")
-            aux.sort()
-            return "&".join(aux)
+        defaults = {
+            "__v": self.meta.get(
+                "v", str(int(time()))
+            ),  # This forces crawlers to refresh the image
+            "__id": self.meta.get("id"),
+            "_w": self.meta.get("width"),
+            "_h": self.meta.get("height"),
+            "_res": self.meta.get("resolution"),
+            "_ua": self.meta.get("agent"),
+        }
+        if (ignoreV):
+            defaults.pop("__v", None)
+        aux = to_query({**defaults, **self.variables}).split("&")
+        aux.sort()
+        return "&".join(aux)
 
     def sign(self) -> str:
         # strategy & secret consistency checked on init
