@@ -76,9 +76,14 @@ def test_ai_encode_url_happy_path():
         project="project",
         path="/path/to/product",
         variables={"title": "Hello world!"},
+        meta=FlayyerMeta(
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product", href) != None
+    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/path\/to\/product", href) != None
 
 def test_ai_encode_url_default_values():
     flayyer = FlayyerAI(
