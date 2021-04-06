@@ -101,6 +101,20 @@ def test_ai_encode_url_with_path_missing_slash_at_start():
     href = flayyer.href()
     assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product", href) != None
 
+def test_ai_encode_url_with_query_params():
+    flayyer = FlayyerAI(
+        project="project",
+        path="/collection/col?sort=price",
+        variables={"title": "Hello world!"},
+        meta=FlayyerMeta(
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
+    )
+    href = flayyer.href()
+    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collection\/col\/?\?sort=price", href) != None
+
 def test_ai_encode_url_with_signature_hmac():
     flayyer = FlayyerAI(
         project="project",
