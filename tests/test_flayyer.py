@@ -126,9 +126,10 @@ def test_ai_encode_url_with_signature_hmac():
             width="100",
             height=200,
         ),
+        variables={"title": "Hello world!"},
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/e8771c307e66652f\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100\/collections\/col\/?", href) != None
+    assert match("https:\/\/flayyer.ai\/v2\/project\/361b2a456daf8415\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collections\/col", href) != None
 
 def test_ai_encode_url_with_signature_jwt():
     flayyer = FlayyerAI(
