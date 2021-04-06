@@ -145,3 +145,18 @@ def test_ai_encode_url_with_signature_jwt():
     )
     href = flayyer.href()
     assert match("https:\/\/flayyer.ai\/v2\/project\/jwt-eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImRldiBmb3Jnb3QgdG8gc2x1Z2lmeSIsIndpZHRoIjoiMTAwIiwiaGVpZ2h0IjoyMDB9.0KpbuqbwJyNVNqPOJO_LzvqOXCQK51_WbGEm3pFyY9s\/?\?__v=\d+", href) != None
+
+def test_ai_encode_url_with_signature_jwt_missing_slash_at_start():
+    flayyer = FlayyerAI(
+        project="project",
+        path="collections/col",
+        secret="sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx",
+        strategy="JWT",
+        meta=FlayyerMeta(
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
+    )
+    href = flayyer.href()
+    assert match("https:\/\/flayyer.ai\/v2\/project\/jwt-eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImRldiBmb3Jnb3QgdG8gc2x1Z2lmeSIsIndpZHRoIjoiMTAwIiwiaGVpZ2h0IjoyMDB9.0KpbuqbwJyNVNqPOJO_LzvqOXCQK51_WbGEm3pFyY9s\/?\?__v=\d+", href) != None
