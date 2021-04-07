@@ -1,5 +1,6 @@
 from urllib.parse import unquote
-from re import match
+from re import search, match
+import jwt
 
 from flayyer import __version__, Flayyer, FlayyerMeta, to_query, FlayyerAI
 
@@ -115,7 +116,7 @@ def test_ai_encode_url_with_query_params():
     href = flayyer.href()
     assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collection\/col\/?\?sort=price", href) != None
 
-def test_ai_encode_url_with_signature_hmac():
+def test_ai_encode_url_with_hmac():
     flayyer = FlayyerAI(
         project="project",
         path="/collections/col",
@@ -131,26 +132,25 @@ def test_ai_encode_url_with_signature_hmac():
     href = flayyer.href()
     assert match("https:\/\/flayyer.ai\/v2\/project\/361b2a456daf8415\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collections\/col", href) != None
 
-def test_ai_encode_url_with_signature_jwt():
+def test_ai_encode_url_with_jwt_default_values():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
     flayyer = FlayyerAI(
         project="project",
-        path="/collections/col",
-        secret="sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx",
+        secret=key,
         strategy="JWT",
-        meta=FlayyerMeta(
-            id="dev forgot to slugify",
-            width="100",
-            height=200,
-        ),
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/jwt-eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImRldiBmb3Jnb3QgdG8gc2x1Z2lmeSIsIndpZHRoIjoiMTAwIiwiaGVpZ2h0IjoyMDB9.0KpbuqbwJyNVNqPOJO_LzvqOXCQK51_WbGEm3pFyY9s\/?\?__v=\d+", href) != None
+    token = search("(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    params = { k: v for k, v in flayyer.params_hash(True).items() if v is not None }
+    check = { "params": params, "path": flayyer.path }
+    assert (decoded == check)
 
-def test_ai_encode_url_with_signature_jwt_missing_slash_at_start():
+def test_ai_encode_url_with_jwt_with_meta():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
     flayyer = FlayyerAI(
         project="project",
-        path="collections/col",
-        secret="sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx",
+        secret=key,
         strategy="JWT",
         meta=FlayyerMeta(
             id="dev forgot to slugify",
@@ -159,4 +159,31 @@ def test_ai_encode_url_with_signature_jwt_missing_slash_at_start():
         ),
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/jwt-eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImRldiBmb3Jnb3QgdG8gc2x1Z2lmeSIsIndpZHRoIjoiMTAwIiwiaGVpZ2h0IjoyMDB9.0KpbuqbwJyNVNqPOJO_LzvqOXCQK51_WbGEm3pFyY9s\/?\?__v=\d+", href) != None
+    token = search("(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    params = { k: v for k, v in flayyer.params_hash(True).items() if v is not None }
+    check = { "params": params, "path": flayyer.path }
+    assert (check["params"]["__id"] == "dev forgot to slugify")
+    assert (decoded == check)
+
+def test_ai_encode_url_with_jwt_without_slash_at_start():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    flayyer = FlayyerAI(
+        project="project",
+        secret=key,
+        strategy="JWT",
+        path="collections/col",
+        meta=FlayyerMeta(
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
+    )
+    href = flayyer.href()
+    token = search("(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    params =  { k: v for k, v in flayyer.params_hash(True).items() if v is not None }
+    check = { "params": params, "path": flayyer.path }
+    assert (check["params"]["__id"] == "dev forgot to slugify")
+    assert (check["path"] == "/collections/col")
+    assert (decoded == check)
