@@ -4,6 +4,7 @@ from typing import Optional, Mapping, Union, Any
 from typing_extensions import TypedDict
 from hashlib import sha256
 import hmac
+import jwt
 
 class FlayyerMeta(TypedDict, total=False):
     agent: str
@@ -105,16 +106,21 @@ class FlayyerAI:
         if (self.strategy == None):
             return "_"
         key = self.secret.encode("ASCII")
-        data = (self.project + self.path + self.querystring(True)).encode("ASCII")
         if (self.strategy and self.strategy.lower() == "hmac"):
+            data = (self.project + self.path + self.querystring(True)).encode("ASCII")
             return hmac.new(key, data, sha256).hexdigest()[:16]
         elif (self.strategy and self.strategy.lower() == "jwt"):
-            return "_"
+            params = {k: v for k, v in self.params_hash(True).items() if v is not None}
+            data = { "params": params, "path": self.path }
+            return jwt.encode(data, key, algorithm="HS256", headers=None)
 
     def href(self) -> str:
         query = self.querystring()
         signature = self.sign()
-        return f"https://flayyer.ai/v2/{self.project}/{signature}/{query}{self.path}"
+        if self.strategy and self.strategy.lower() == "jwt":
+            return f"https://flayyer.ai/v2/{self.project}/jwt-{signature}?__v={str(int(time()))}"
+        else:
+            return f"https://flayyer.ai/v2/{self.project}/{signature}/{query}{self.path}"
 
     def __str__(self):
         return self.href()
