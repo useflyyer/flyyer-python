@@ -118,7 +118,8 @@ class FlayyerAI:
         query = self.querystring()
         signature = self.sign()
         if self.strategy and self.strategy.lower() == "jwt":
-            return f"https://flayyer.ai/v2/{self.project}/jwt-{signature}?__v={self.meta.get("v", str(int(time()))}"
+            final_version = self.meta.get("v", str(int(time())))
+            return f"https://flayyer.ai/v2/{self.project}/jwt-{signature}?__v={final_version}"
         else:
             return f"https://flayyer.ai/v2/{self.project}/{signature}/{query}{self.path}"
 
