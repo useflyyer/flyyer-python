@@ -93,17 +93,17 @@ flayyer = FlayyerAI(
   path="/path/to/product",
   # [Optional] In case you want to provide information that is not present in your page set it here.
   variables={
-    'title': 'Product name',
-    'img': 'https://flayyer.com/img/marketplace/flayyer-banner.png',
+    "title": "Product name",
+    "img": "https://flayyer.com/img/marketplace/flayyer-banner.png",
   },
   # [Optional] Custom metadata for rendering the image. ID is recommended so we provide you with better statistics.
   meta=FlayyerMeta(
-    id='jeans-123', # recommended for better stats
-    v='12369420123', # specific handler version, by default it's a random number to circumvent platforms' cache,
+    id="jeans-123", # recommended for better stats
+    v="12369420123", # specific handler version, by default it's a random number to circumvent platforms' cache,
     width=1200,
     height=600,
     resolution=0.9, # from 0.0 to 1.0
-    agent='whatsapp', # force dimensions for specific platform
+    agent="whatsapp", # force dimensions for specific platform
   ),
 )
 
@@ -118,8 +118,8 @@ For signed URLs, just provide your secret (find it in Dashboard > Project > Adva
 flayyer = FlayyerAI(
   project="website-com",
   path="/path/to/product",
-  secret='your-secret-key',
-  strategy='JWT', # or 'HMAC'
+  secret="your-secret-key",
+  strategy="JWT", # or 'HMAC'
 )
 
 print(flayyer.href())
