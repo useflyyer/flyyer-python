@@ -191,18 +191,6 @@ poetry install
 poetry shell
 ```
 
-Run tests with pytest:
-
-```sh
-poetry run pytest
-```
-
-Run [black](https://github.com/psf/black) linter:
-
-```sh
-black .
-```
-
 Deploy with:
 
 ```sh
@@ -214,3 +202,16 @@ poetry build
 poetry publish
 ```
 
+## Test
+
+Run tests with pytest:
+
+```sh
+poetry run pytest
+```
+
+Run [black](https://github.com/psf/black) linter:
+
+```sh
+black .
+```
