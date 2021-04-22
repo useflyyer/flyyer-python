@@ -6,6 +6,7 @@ from hashlib import sha256
 import hmac
 import jwt
 
+
 class FlayyerMeta(TypedDict, total=False):
     agent: str
     width: Union[str, int]
@@ -73,12 +74,16 @@ class FlayyerAI:
         self.strategy = strategy
         self.variables = variables if variables else {}
         self.meta = meta if meta else {}
-        if (strategy and strategy.lower() != "hmac" and strategy.lower() != "jwt"):
-          raise Exception("Invalid `strategy`. Valid options are `HMAC` or `JWT`.")
-        if (strategy and not secret):
-          raise Exception("Missing `secret`. You can find it in your project in Advanced settings.")
-        if (secret and not strategy):
-          raise Exception("Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`.")
+        if strategy and strategy.lower() != "hmac" and strategy.lower() != "jwt":
+            raise Exception("Invalid `strategy`. Valid options are `HMAC` or `JWT`.")
+        if strategy and not secret:
+            raise Exception(
+                "Missing `secret`. You can find it in your project in Advanced settings."
+            )
+        if secret and not strategy:
+            raise Exception(
+                "Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`."
+            )
 
     def params_hash(self, ignoreV) -> str:
         defaults = {
@@ -91,7 +96,7 @@ class FlayyerAI:
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
         }
-        if (ignoreV):
+        if ignoreV:
             defaults.pop("__v", None)
         return {**defaults, **self.variables}
 
@@ -103,15 +108,15 @@ class FlayyerAI:
 
     def sign(self) -> str:
         # strategy & secret consistency checked on init
-        if (self.strategy == None):
+        if self.strategy == None:
             return "_"
         key = self.secret.encode("ASCII")
-        if (self.strategy and self.strategy.lower() == "hmac"):
+        if self.strategy and self.strategy.lower() == "hmac":
             data = (self.project + self.path + self.querystring(True)).encode("ASCII")
             return hmac.new(key, data, sha256).hexdigest()[:16]
-        elif (self.strategy and self.strategy.lower() == "jwt"):
+        elif self.strategy and self.strategy.lower() == "jwt":
             params = {k: v for k, v in self.params_hash(True).items() if v is not None}
-            data = { "params": params, "path": self.path }
+            data = {"params": params, "path": self.path}
             return jwt.encode(data, key, algorithm="HS256", headers=None)
 
     def href(self) -> str:
@@ -121,10 +126,13 @@ class FlayyerAI:
             final_version = self.meta.get("v", str(int(time())))
             return f"https://flayyer.ai/v2/{self.project}/jwt-{signature}?__v={final_version}"
         else:
-            return f"https://flayyer.ai/v2/{self.project}/{signature}/{query}{self.path}"
+            return (
+                f"https://flayyer.ai/v2/{self.project}/{signature}/{query}{self.path}"
+            )
 
     def __str__(self):
         return self.href()
+
 
 # From https://stackoverflow.com/a/43347067/3416691
 # Alternative: https://stackoverflow.com/a/4014164/3416691
@@ -134,7 +142,7 @@ def to_query(params: Mapping[Any, Any]) -> str:
     def _encode_params(params, p_key=None):
         encode_params = {}
         if params is None:
-            pass # skip
+            pass  # skip
         elif isinstance(params, dict):
             for key in params:
                 encode_key = "{}[{}]".format(p_key, key)

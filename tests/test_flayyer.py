@@ -56,6 +56,7 @@ def test_complex_stringify():
     result = to_query(data)
     assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
 
+
 def test_ai_meta_parameters():
     flayyer = FlayyerAI(
         project="project",
@@ -70,7 +71,14 @@ def test_ai_meta_parameters():
         ),
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_ua=whatsapp&_w=100&title=title\/path\/to\/product", href) != None
+    assert (
+        match(
+            "https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_ua=whatsapp&_w=100&title=title\/path\/to\/product",
+            href,
+        )
+        != None
+    )
+
 
 def test_ai_encode_url_happy_path():
     flayyer = FlayyerAI(
@@ -84,7 +92,14 @@ def test_ai_encode_url_happy_path():
         ),
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/path\/to\/product", href) != None
+    assert (
+        match(
+            "https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/path\/to\/product",
+            href,
+        )
+        != None
+    )
+
 
 def test_ai_encode_url_default_values():
     flayyer = FlayyerAI(
@@ -93,6 +108,7 @@ def test_ai_encode_url_default_values():
     href = flayyer.href()
     assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__v=\d+\/", href) != None
 
+
 def test_ai_encode_url_with_path_missing_slash_at_start():
     flayyer = FlayyerAI(
         project="project",
@@ -100,7 +116,14 @@ def test_ai_encode_url_with_path_missing_slash_at_start():
         variables={"title": "Hello world!"},
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product", href) != None
+    assert (
+        match(
+            "https:\/\/flayyer.ai\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product",
+            href,
+        )
+        != None
+    )
+
 
 def test_ai_encode_url_with_query_params():
     flayyer = FlayyerAI(
@@ -114,7 +137,14 @@ def test_ai_encode_url_with_query_params():
         ),
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collection\/col\/?\?sort=price", href) != None
+    assert (
+        match(
+            "https:\/\/flayyer.ai\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collection\/col\/?\?sort=price",
+            href,
+        )
+        != None
+    )
+
 
 def test_ai_encode_url_with_hmac():
     flayyer = FlayyerAI(
@@ -130,7 +160,14 @@ def test_ai_encode_url_with_hmac():
         variables={"title": "Hello world!"},
     )
     href = flayyer.href()
-    assert match("https:\/\/flayyer.ai\/v2\/project\/361b2a456daf8415\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collections\/col", href) != None
+    assert (
+        match(
+            "https:\/\/flayyer.ai\/v2\/project\/361b2a456daf8415\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collections\/col",
+            href,
+        )
+        != None
+    )
+
 
 def test_ai_encode_url_with_jwt_default_values():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
@@ -142,9 +179,10 @@ def test_ai_encode_url_with_jwt_default_values():
     href = flayyer.href()
     token = search("(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    params = { k: v for k, v in flayyer.params_hash(True).items() if v is not None }
-    check = { "params": params, "path": flayyer.path }
-    assert (decoded == check)
+    params = {k: v for k, v in flayyer.params_hash(True).items() if v is not None}
+    check = {"params": params, "path": flayyer.path}
+    assert decoded == check
+
 
 def test_ai_encode_url_with_jwt_with_meta():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
@@ -161,10 +199,11 @@ def test_ai_encode_url_with_jwt_with_meta():
     href = flayyer.href()
     token = search("(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    params = { k: v for k, v in flayyer.params_hash(True).items() if v is not None }
-    check = { "params": params, "path": flayyer.path }
-    assert (check["params"]["__id"] == "dev forgot to slugify")
-    assert (decoded == check)
+    params = {k: v for k, v in flayyer.params_hash(True).items() if v is not None}
+    check = {"params": params, "path": flayyer.path}
+    assert check["params"]["__id"] == "dev forgot to slugify"
+    assert decoded == check
+
 
 def test_ai_encode_url_with_jwt_without_slash_at_start():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
@@ -182,8 +221,8 @@ def test_ai_encode_url_with_jwt_without_slash_at_start():
     href = flayyer.href()
     token = search("(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    params =  { k: v for k, v in flayyer.params_hash(True).items() if v is not None }
-    check = { "params": params, "path": flayyer.path }
-    assert (check["params"]["__id"] == "dev forgot to slugify")
-    assert (check["path"] == "/collections/col")
-    assert (decoded == check)
+    params = {k: v for k, v in flayyer.params_hash(True).items() if v is not None}
+    check = {"params": params, "path": flayyer.path}
+    assert check["params"]["__id"] == "dev forgot to slugify"
+    assert check["path"] == "/collections/col"
+    assert decoded == check
