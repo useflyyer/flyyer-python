@@ -11,6 +11,7 @@ repository = "https://github.com/flayyer/flayyer-python"
 [tool.poetry.dependencies]
 python = "^3.6"
 typing-extensions = "^3.7.4"
+PyJWT = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
