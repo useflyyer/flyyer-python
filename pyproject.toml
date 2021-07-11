@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "flayyer"
-version = "1.2.0"
-description = "FLAYYER.com helper classes and methods"
-authors = ["Patricio López Juri <patricio@flayyer.com>"]
+name = "flyyer"
+version = "2.0.0"
+description = "FLYYER.com helper classes and methods"
+authors = ["Patricio López Juri <patricio@flyyer.io>", "Franco Méndez Z <franco@flyyer.io>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://flayyer.com/"
-repository = "https://github.com/flayyer/flayyer-python"
+homepage = "https://flyyer.io/"
+repository = "https://github.com/useflyyer/flyyer-python"
 
 [tool.poetry.dependencies]
 python = "^3.6"
