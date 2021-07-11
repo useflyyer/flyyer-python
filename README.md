@@ -87,7 +87,7 @@ Here you have a detailed full example for project `website-com` and path `/path/
 from flyyer import Flyyer, FlyyerMeta
 
 flyyer = Flyyer(
-  # [Required] Your project slug, find it in your dashboard https://flyyer.io/dashboard/.
+  # [Required] Your project slug, find it in your dashboard https://www.flyyer.io/dashboard/_/projects/_/integrate.
   project="website-com",
   # [Recommended] The current path of your website (by default it's `/`).
   path="/path/to/product",
