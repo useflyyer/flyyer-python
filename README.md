@@ -67,7 +67,7 @@ You'll get the best results like this:
 
 ### 4. Create a `rule` for your project
 
-Login at [Flyyer.io](https://flyyer.io?ref=flyyer-python) > Go to your Dashboard > Manage rules and create a rule like the following:
+Go to your dashboard [here](https://flyyer.io/dashboard/_/projects/_/manage) and create a rule like the following:
 
 [![Flyyer basic rule example](https://github.com/useflyyer/create-flyyer-app/blob/master/.github/assets/rule-example.png?raw=true&v=1)](https://flyyer.io/dashboard)
 
