@@ -7,7 +7,7 @@ import hmac
 import jwt
 
 
-class FlayyerMeta(TypedDict, total=False):
+class FlyyerMeta(TypedDict, total=False):
     agent: str
     width: Union[str, int]
     height: Union[str, int]
@@ -16,7 +16,7 @@ class FlayyerMeta(TypedDict, total=False):
     v: Union[str, int]
 
 
-class Flayyer:
+class FlyyerRender:
     def __init__(
         self,
         tenant: str,
@@ -25,7 +25,7 @@ class Flayyer:
         version: Optional[int] = None,
         extension: str = "jpeg",
         variables: Optional[Mapping[Any, Any]] = None,
-        meta: Optional[FlayyerMeta] = None,
+        meta: Optional[FlyyerMeta] = None,
     ):
         self.tenant = tenant
         self.deck = deck
@@ -51,14 +51,14 @@ class Flayyer:
     def href(self) -> str:
         query = self.querystring()
         if self.version:
-            return f"https://flayyer.io/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
-        return f"https://flayyer.io/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
+            return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
+        return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
 
     def __str__(self):
         return self.href()
 
 
-class FlayyerAI:
+class Flyyer:
     def __init__(
         self,
         project: str,
@@ -66,7 +66,7 @@ class FlayyerAI:
         secret: Optional[str] = None,
         strategy: Optional[str] = None,
         variables: Optional[Mapping[Any, Any]] = None,
-        meta: Optional[FlayyerMeta] = None,
+        meta: Optional[FlyyerMeta] = None,
     ):
         self.project = project
         self.path = path if path.startswith("/") else "/" + path
@@ -124,10 +124,10 @@ class FlayyerAI:
         signature = self.sign()
         if self.strategy and self.strategy.lower() == "jwt":
             final_version = self.meta.get("v", str(int(time())))
-            return f"https://flayyer.ai/v2/{self.project}/jwt-{signature}?__v={final_version}"
+            return f"https://cdn.flyyer.io/v2/{self.project}/jwt-{signature}?__v={final_version}"
         else:
             return (
-                f"https://flayyer.ai/v2/{self.project}/{signature}/{query}{self.path}"
+                f"https://cdn.flyyer.io/v2/{self.project}/{signature}/{query}{self.path}"
             )
 
     def __str__(self):
