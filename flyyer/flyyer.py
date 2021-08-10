@@ -26,6 +26,8 @@ class FlyyerRender:
         extension: str = "jpeg",
         variables: Optional[Mapping[Any, Any]] = None,
         meta: Optional[FlyyerMeta] = None,
+        secret: Optional[str] = None,
+        strategy: Optional[str] = None,
     ):
         self.tenant = tenant
         self.deck = deck
@@ -34,19 +36,49 @@ class FlyyerRender:
         self.extension = extension
         self.variables = variables if variables else {}
         self.meta = meta if meta else {}
+        self.secret = secret
+        self.strategy = strategy
+        if strategy and strategy.lower() != "hmac" and strategy.lower() != "jwt":
+            raise Exception("Invalid `strategy`. Valid options are `HMAC` or `JWT`.")
+        if strategy and not secret:
+            raise Exception(
+                "Missing `secret`. You can find it in your project in Advanced settings."
+            )
+        if secret and not strategy:
+            raise Exception(
+                "Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`."
+            )
 
     def querystring(self) -> str:
-        defaults = {
-            "__v": self.meta.get(
-                "v", str(int(time()))
-            ),  # This forces crawlers to refresh the image
+        default_v = { "__v": self.meta.get("v", str(int(time()))) } # This forces crawlers to refresh the image
+        defaults_without_v = {
             "__id": self.meta.get("id"),
             "_w": self.meta.get("width"),
             "_h": self.meta.get("height"),
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
         }
-        return to_query({**defaults, **self.variables})
+        base_query = to_query({**default_v, **defaults_without_v, **self.variables})
+        if self.strategy and self.secret:
+            key = self.secret.encode("ASCII")
+            if self.strategy.lower() == "hmac":
+                data = to_query({**defaults_without_v, **self.variables}).encode("ASCII")
+                __hmac = hmac.new(key, data, sha256).hexdigest()[:16]
+                return base_query + "&__hmac=" + __hmac
+            elif self.strategy.lower() == "jwt":
+                data = {
+                    "deck": self.deck,
+                    "template": self.template,
+                    "version": self.version,
+                    "extension": self.extension,
+                    **defaults_without_v,
+                    **self.variables,
+                }
+                __v = self.meta.get("v", str(int(time())))
+                __jwt = jwt.encode(data, key, algorithm="HS256", headers=None)
+                return "__v=" + __v + "&__jwt=" + __jwt
+        else:
+            return base_query
 
     def href(self) -> str:
         query = self.querystring()
