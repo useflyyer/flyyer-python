@@ -9,7 +9,18 @@ def test_version():
     assert __version__ is not None
 
 
-def test_url_encoding():
+def test_simple_stringify():
+    data = {"a": "hello", "b": 100, "c": False, "d": None, "b": 999}
+    result = to_query(data)
+    assert result == "a=hello&b=999&c=false"
+
+
+def test_complex_stringify():
+    data = {"a": {"aa": "bar", "ab": "foo"}, "b": [{"c": "foo"}, {"c": "bar"}]}
+    result = to_query(data)
+    assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
+
+def test_flyyer_render_url_encoding():
     flyyer = FlyyerRender(
         tenant="tenant",
         deck="deck",
@@ -22,7 +33,7 @@ def test_url_encoding():
     assert href == str(flyyer)
 
 
-def test_meta_parameters():
+def test_flyyer_render_meta_parameters():
     flyyer = FlyyerRender(
         tenant="tenant",
         deck="deck",
@@ -44,20 +55,7 @@ def test_meta_parameters():
     assert href.find("&__id=dev+forgot+to+slugify") != -1
     assert href.find("&_res=") == -1
 
-
-def test_simple_stringify():
-    data = {"a": "hello", "b": 100, "c": False, "d": None, "b": 999}
-    result = to_query(data)
-    assert result == "a=hello&b=999&c=false"
-
-
-def test_complex_stringify():
-    data = {"a": {"aa": "bar", "ab": "foo"}, "b": [{"c": "foo"}, {"c": "bar"}]}
-    result = to_query(data)
-    assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
-
-
-def test_ai_meta_parameters():
+def test_flyyer_meta_parameters():
     flyyer = Flyyer(
         project="project",
         path="/path/to/product",
@@ -80,7 +78,7 @@ def test_ai_meta_parameters():
     )
 
 
-def test_ai_encode_url_happy_path():
+def test_flyyer_encode_url_happy_path():
     flyyer = Flyyer(
         project="project",
         path="/path/to/product",
@@ -101,7 +99,7 @@ def test_ai_encode_url_happy_path():
     )
 
 
-def test_ai_encode_url_default_values():
+def test_flyyer_encode_url_default_values():
     flyyer = Flyyer(
         project="project",
     )
@@ -109,7 +107,7 @@ def test_ai_encode_url_default_values():
     assert match(r'https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+\/', href) != None
 
 
-def test_ai_encode_url_with_path_missing_slash_at_start():
+def test_flyyer_encode_url_with_path_missing_slash_at_start():
     flyyer = Flyyer(
         project="project",
         path="path/to/product",
@@ -125,7 +123,7 @@ def test_ai_encode_url_with_path_missing_slash_at_start():
     )
 
 
-def test_ai_encode_url_with_query_params():
+def test_flyyer_encode_url_with_query_params():
     flyyer = Flyyer(
         project="project",
         path="/collection/col?sort=price",
@@ -146,7 +144,7 @@ def test_ai_encode_url_with_query_params():
     )
 
 
-def test_ai_encode_url_with_hmac():
+def test_flyyer_encode_url_with_hmac():
     flyyer = Flyyer(
         project="project",
         path="/collections/col",
@@ -169,7 +167,7 @@ def test_ai_encode_url_with_hmac():
     )
 
 
-def test_ai_encode_url_with_jwt_default_values():
+def test_flyyer_encode_url_with_jwt_default_values():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
     flyyer = Flyyer(
         project="project",
@@ -184,7 +182,7 @@ def test_ai_encode_url_with_jwt_default_values():
     assert decoded == check
 
 
-def test_ai_encode_url_with_jwt_with_meta():
+def test_flyyer_encode_url_with_jwt_with_meta():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
     flyyer = Flyyer(
         project="project",
@@ -205,7 +203,7 @@ def test_ai_encode_url_with_jwt_with_meta():
     assert decoded == check
 
 
-def test_ai_encode_url_with_jwt_without_slash_at_start():
+def test_flyyer_encode_url_with_jwt_without_slash_at_start():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
     flyyer = Flyyer(
         project="project",
