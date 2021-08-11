@@ -80,7 +80,7 @@ class FlyyerRender:
                     "deck": self.deck,
                     "template": self.template,
                     "version": self.version,
-                    "extension": self.extension,
+                    "ext": self.extension,
                     **defaults_without_v,
                     **self.variables,
                 }
