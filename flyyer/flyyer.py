@@ -50,7 +50,9 @@ class FlyyerRender:
             )
 
     def querystring(self) -> str:
-        default_v = { "__v": self.meta.get("v", str(int(time()))) } # This forces crawlers to refresh the image
+        default_v = {
+            "__v": self.meta.get("v", str(int(time())))
+        }  # This forces crawlers to refresh the image
         defaults_without_v = {
             "__id": self.meta.get("id"),
             "_w": self.meta.get("width"),
@@ -58,13 +60,21 @@ class FlyyerRender:
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
         }
-        base_query = to_query({**default_v, **defaults_without_v, **self.variables})
         if self.strategy and self.secret:
             key = self.secret.encode("ASCII")
             if self.strategy.lower() == "hmac":
-                data = to_query({**defaults_without_v, **self.variables}).encode("ASCII")
+                data = to_query({**defaults_without_v, **self.variables}).encode(
+                    "ASCII"
+                )
                 __hmac = hmac.new(key, data, sha256).hexdigest()[:16]
-                return base_query + "&__hmac=" + __hmac
+                return to_query(
+                    {
+                        **default_v,
+                        **defaults_without_v,
+                        **self.variables,
+                        "__hmac": __hmac,
+                    }
+                )
             elif self.strategy.lower() == "jwt":
                 data = {
                     "deck": self.deck,
@@ -76,9 +86,9 @@ class FlyyerRender:
                 }
                 __v = self.meta.get("v", str(int(time())))
                 __jwt = jwt.encode(data, key, algorithm="HS256", headers=None)
-                return "__v=" + __v + "&__jwt=" + __jwt
+                return to_query({"__v": __v, "__jwt": __jwt})
         else:
-            return base_query
+            return to_query({**default_v, **defaults_without_v, **self.variables})
 
     def href(self) -> str:
         query = self.querystring()
@@ -160,9 +170,7 @@ class Flyyer:
             final_version = self.meta.get("v", str(int(time())))
             return f"https://cdn.flyyer.io/v2/{self.project}/jwt-{signature}?__v={final_version}"
         else:
-            return (
-                f"https://cdn.flyyer.io/v2/{self.project}/{signature}/{query}{self.path}"
-            )
+            return f"https://cdn.flyyer.io/v2/{self.project}/{signature}/{query}{self.path}"
 
     def __str__(self):
         return self.href()
