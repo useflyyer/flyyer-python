@@ -30,6 +30,21 @@ def test_flyyer_render_url_encoding():
     )
     href = flyyer.href()
     assert href.startswith(
+        "https://cdn.flyyer.io/render/v2/tenant/deck/template?__v="
+    )
+    assert href.endswith("&title=Hello+world%21")
+    assert href == str(flyyer)
+
+def test_flyyer_render_url_encoding_with_extension():
+    flyyer = FlyyerRender(
+        tenant="tenant",
+        deck="deck",
+        template="template",
+        extension="jpeg",
+        variables={"title": "Hello world!"},
+    )
+    href = flyyer.href()
+    assert href.startswith(
         "https://cdn.flyyer.io/render/v2/tenant/deck/template.jpeg?__v="
     )
     assert href.endswith("&title=Hello+world%21")
@@ -41,12 +56,13 @@ def test_flyyer_render_url_encoding_with_version():
         tenant="tenant",
         deck="deck",
         template="template",
+        extension="png",
         version=12,
         variables={"title": "Hello world!"},
     )
     href = flyyer.href()
     assert href.startswith(
-        "https://cdn.flyyer.io/render/v2/tenant/deck/template.12.jpeg?__v="
+        "https://cdn.flyyer.io/render/v2/tenant/deck/template.12.png?__v="
     )
     assert href.endswith("&title=Hello+world%21")
     assert href == str(flyyer)
@@ -57,6 +73,7 @@ def test_flyyer_render_meta_parameters():
         tenant="tenant",
         deck="deck",
         template="template",
+        extension="jpeg",
         variables={"title": "title"},
         meta=FlyyerMeta(
             agent="whatsapp",
@@ -83,6 +100,7 @@ def test_flyyer_render_encode_url_with_hmac():
         tenant="tenant",
         deck="deck",
         template="template",
+        extension="jpeg",
         variables={"title": "Hello world!"},
         secret=key,
         strategy="HMAC",
@@ -104,6 +122,7 @@ def test_flyyer_render_encode_url_with_jwt_default_values():
         deck="deck",
         template="template",
         version=4,
+        extension="jpeg",
         variables={"title": "Hello world!"},
         secret=key,
         strategy="JWT",
@@ -157,7 +176,7 @@ def test_flyyer_render_encode_url_with_jwt_with_meta():
         "deck": "deck",
         "template": "template",
         "version": None,
-        "ext": "jpeg",
+        "ext": None,
         "__id": "dev forgot to slugify",
         "_w": "100",
         "_h": 200,

@@ -23,7 +23,7 @@ class FlyyerRender:
         deck: str,
         template: str,
         version: Optional[int] = None,
-        extension: str = "jpeg",
+        extension: Optional[str] = None,
         variables: Optional[Mapping[Any, Any]] = None,
         meta: Optional[FlyyerMeta] = None,
         secret: Optional[str] = None,
@@ -68,7 +68,7 @@ class FlyyerRender:
                         self.deck,
                         self.template,
                         self.version or "",
-                        self.extension,
+                        self.extension or "",
                         to_query(
                             {
                                 **defaults_without_v,
@@ -103,11 +103,13 @@ class FlyyerRender:
 
     def href(self) -> str:
         query = self.querystring()
+        base_href = "https://cdn.flyyer.io/render/v2"
         if self.strategy and self.strategy.lower() == "jwt":
-            return f"https://cdn.flyyer.io/render/v2/{self.tenant}?{query}"
-        if self.version:
-            return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
-        return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
+            return f"{base_href}/{self.tenant}?{query}"
+        final_href = f"{base_href}/{self.tenant}/{self.deck}/{self.template}"
+        if self.version: final_href += f".{self.version}"
+        if self.extension: final_href += f".{self.extension}"
+        return f"{final_href}?{query}"
 
     def __str__(self):
         return self.href()
