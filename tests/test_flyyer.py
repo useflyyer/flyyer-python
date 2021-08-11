@@ -29,9 +29,12 @@ def test_flyyer_render_url_encoding():
         variables={"title": "Hello world!"},
     )
     href = flyyer.href()
-    assert href.startswith("https://cdn.flyyer.io/render/v2/tenant/deck/template.jpeg?__v=")
+    assert href.startswith(
+        "https://cdn.flyyer.io/render/v2/tenant/deck/template.jpeg?__v="
+    )
     assert href.endswith("&title=Hello+world%21")
     assert href == str(flyyer)
+
 
 def test_flyyer_render_url_encoding_with_version():
     flyyer = FlyyerRender(
@@ -42,7 +45,9 @@ def test_flyyer_render_url_encoding_with_version():
         variables={"title": "Hello world!"},
     )
     href = flyyer.href()
-    assert href.startswith("https://cdn.flyyer.io/render/v2/tenant/deck/template.12.jpeg?__v=")
+    assert href.startswith(
+        "https://cdn.flyyer.io/render/v2/tenant/deck/template.12.jpeg?__v="
+    )
     assert href.endswith("&title=Hello+world%21")
     assert href == str(flyyer)
 
@@ -61,13 +66,16 @@ def test_flyyer_render_meta_parameters():
         ),
     )
     href = flyyer.href()
-    assert href.startswith("https://cdn.flyyer.io/render/v2/tenant/deck/template.jpeg?__v=")
+    assert href.startswith(
+        "https://cdn.flyyer.io/render/v2/tenant/deck/template.jpeg?__v="
+    )
     assert href.find("&title=title") != -1
     assert href.find("&_ua=whatsapp") != -1
     assert href.find("&_w=100") != -1
     assert href.find("&_h=200") != -1
     assert href.find("&__id=dev+forgot+to+slugify") != -1
     assert href.find("&_res=") == -1
+
 
 def test_flyyer_render_encode_url_with_hmac():
     key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
@@ -82,7 +90,7 @@ def test_flyyer_render_encode_url_with_hmac():
     href = flyyer.href()
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/render\/v2\/tenant\/deck\/template.jpeg\?__v=\d+&title=Hello\+world%21&__hmac=1bea6d523496848c',
+            r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\/deck\/template.jpeg\?__v=\d+&title=Hello\+world%21&__hmac=1bea6d523496848c",
             href,
         )
         != None
@@ -101,13 +109,26 @@ def test_flyyer_render_encode_url_with_jwt_default_values():
         strategy="JWT",
     )
     href = flyyer.href()
-    token = search(r'(.*)(jwt=)(.*)', href).groups(2)[2]
+    token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    check = {'deck': 'deck', 'template': 'template', 'version': 4, 'extension': 'jpeg', '__id': None, '_w': None, '_h': None, '_res': None, '_ua': None, 'title': 'Hello world!'}
+    check = {
+        "deck": "deck",
+        "template": "template",
+        "version": 4,
+        "extension": "jpeg",
+        "__id": None,
+        "_w": None,
+        "_h": None,
+        "_res": None,
+        "_ua": None,
+        "title": "Hello world!",
+    }
     assert decoded == check
+    print("href")
+    print(href)
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/render\/v2\/tenant\?__v=\d+&__jwt=.*',
+            r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\?__v=\d+&__jwt=.*",
             href,
         )
         != None
@@ -130,9 +151,19 @@ def test_flyyer_render_encode_url_with_jwt_with_meta():
         ),
     )
     href = flyyer.href()
-    token = search(r'(.*)(jwt=)(.*)', href).groups(2)[2]
+    token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    check = {'deck': 'deck', 'template': 'template', 'version': None, 'extension': 'jpeg', '__id': 'dev forgot to slugify', '_w': '100', '_h': 200, '_res': None, '_ua': 'whatsapp'}
+    check = {
+        "deck": "deck",
+        "template": "template",
+        "version": None,
+        "extension": "jpeg",
+        "__id": "dev forgot to slugify",
+        "_w": "100",
+        "_h": 200,
+        "_res": None,
+        "_ua": "whatsapp",
+    }
     assert decoded == check
     # assert decoded == check
 
@@ -153,7 +184,7 @@ def test_flyyer_meta_parameters():
     href = flyyer.href()
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_ua=whatsapp&_w=100&title=title\/path\/to\/product',
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_ua=whatsapp&_w=100&title=title\/path\/to\/product",
             href,
         )
         != None
@@ -174,7 +205,7 @@ def test_flyyer_encode_url_happy_path():
     href = flyyer.href()
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/path\/to\/product',
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/path\/to\/product",
             href,
         )
         != None
@@ -186,7 +217,7 @@ def test_flyyer_encode_url_default_values():
         project="project",
     )
     href = flyyer.href()
-    assert match(r'https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+\/', href) != None
+    assert match(r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+\/", href) != None
 
 
 def test_flyyer_encode_url_with_path_missing_slash_at_start():
@@ -198,7 +229,7 @@ def test_flyyer_encode_url_with_path_missing_slash_at_start():
     href = flyyer.href()
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product',
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+&title=Hello\+world%21\/path\/to\/product",
             href,
         )
         != None
@@ -219,7 +250,7 @@ def test_flyyer_encode_url_with_query_params():
     href = flyyer.href()
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collection\/col\/?\?sort=price',
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collection\/col\/?\?sort=price",
             href,
         )
         != None
@@ -243,7 +274,7 @@ def test_flyyer_encode_url_with_hmac():
     href = flyyer.href()
     assert (
         match(
-            r'https:\/\/cdn.flyyer.io\/v2\/project\/361b2a456daf8415\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collections\/col',
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/361b2a456daf8415\/__id=dev\+forgot\+to\+slugify&__v=\d+&_h=200&_w=100&title=Hello\+world%21\/collections\/col",
             href,
         )
         != None
@@ -258,7 +289,7 @@ def test_flyyer_encode_url_with_jwt_default_values():
         strategy="JWT",
     )
     href = flyyer.href()
-    token = search(r'(.*)(jwt-)(.*)(\?__v=\d+)', href).groups(2)[2]
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     params = {k: v for k, v in flyyer.params_hash(True).items() if v is not None}
     check = {"params": params, "path": flyyer.path}
@@ -278,7 +309,7 @@ def test_flyyer_encode_url_with_jwt_with_meta():
         ),
     )
     href = flyyer.href()
-    token = search(r'(.*)(jwt-)(.*)(\?__v=\d+)', href).groups(2)[2]
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     params = {k: v for k, v in flyyer.params_hash(True).items() if v is not None}
     check = {"params": params, "path": flyyer.path}
@@ -300,7 +331,7 @@ def test_flyyer_encode_url_with_jwt_without_slash_at_start():
         ),
     )
     href = flyyer.href()
-    token = search(r'(.*)(jwt-)(.*)(\?__v=\d+)', href).groups(2)[2]
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     params = {k: v for k, v in flyyer.params_hash(True).items() if v is not None}
     check = {"params": params, "path": flyyer.path}
