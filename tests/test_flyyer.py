@@ -20,6 +20,7 @@ def test_complex_stringify():
     result = to_query(data)
     assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
 
+
 def test_flyyer_render_url_encoding():
     flyyer = FlyyerRender(
         tenant="tenant",
@@ -54,6 +55,28 @@ def test_flyyer_render_meta_parameters():
     assert href.find("&_h=200") != -1
     assert href.find("&__id=dev+forgot+to+slugify") != -1
     assert href.find("&_res=") == -1
+
+def test_flyyer_render_encode_url_with_hmac():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    flyyer = FlyyerRender(
+        tenant="tenant",
+        deck="deck",
+        template="template",
+        variables={"title": "Hello world!"},
+        secret=key,
+        strategy="HMAC",
+    )
+    href = flyyer.href()
+    print("href")
+    print(href)
+    assert (
+        match(
+            r'https:\/\/cdn.flyyer.io\/render\/v2\/tenant\/deck\/template.jpeg\?__v=\d+&title=Hello\+world%21&__hmac=1bea6d523496848c',
+            href,
+        )
+        != None
+    )
+
 
 def test_flyyer_meta_parameters():
     flyyer = Flyyer(
@@ -145,10 +168,11 @@ def test_flyyer_encode_url_with_query_params():
 
 
 def test_flyyer_encode_url_with_hmac():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
     flyyer = Flyyer(
         project="project",
         path="/collections/col",
-        secret="sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx",
+        secret=key,
         strategy="HMAC",
         meta=FlyyerMeta(
             id="dev forgot to slugify",
