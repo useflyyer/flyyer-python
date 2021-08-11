@@ -90,7 +90,7 @@ def test_flyyer_render_encode_url_with_hmac():
     href = flyyer.href()
     assert (
         match(
-            r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\/deck\/template.jpeg\?__v=\d+&title=Hello\+world%21&__hmac=1bea6d523496848c",
+            r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\/deck\/template.jpeg\?__v=\d+&title=Hello\+world%21&__hmac=9deb26b3dd3725fe",
             href,
         )
         != None
