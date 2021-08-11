@@ -33,6 +33,19 @@ def test_flyyer_render_url_encoding():
     assert href.endswith("&title=Hello+world%21")
     assert href == str(flyyer)
 
+def test_flyyer_render_url_encoding_with_version():
+    flyyer = FlyyerRender(
+        tenant="tenant",
+        deck="deck",
+        template="template",
+        version=12,
+        variables={"title": "Hello world!"},
+    )
+    href = flyyer.href()
+    assert href.startswith("https://cdn.flyyer.io/render/v2/tenant/deck/template.12.jpeg?__v=")
+    assert href.endswith("&title=Hello+world%21")
+    assert href == str(flyyer)
+
 
 def test_flyyer_render_meta_parameters():
     flyyer = FlyyerRender(
@@ -67,8 +80,6 @@ def test_flyyer_render_encode_url_with_hmac():
         strategy="HMAC",
     )
     href = flyyer.href()
-    print("href")
-    print(href)
     assert (
         match(
             r'https:\/\/cdn.flyyer.io\/render\/v2\/tenant\/deck\/template.jpeg\?__v=\d+&title=Hello\+world%21&__hmac=1bea6d523496848c',
