@@ -107,8 +107,10 @@ class FlyyerRender:
         if self.strategy and self.strategy.lower() == "jwt":
             return f"{base_href}/{self.tenant}?{query}"
         final_href = f"{base_href}/{self.tenant}/{self.deck}/{self.template}"
-        if self.version: final_href += f".{self.version}"
-        if self.extension: final_href += f".{self.extension}"
+        if self.version:
+            final_href += f".{self.version}"
+        if self.extension:
+            final_href += f".{self.extension}"
         return f"{final_href}?{query}"
 
     def __str__(self):

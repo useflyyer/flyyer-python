@@ -29,11 +29,10 @@ def test_flyyer_render_url_encoding():
         variables={"title": "Hello world!"},
     )
     href = flyyer.href()
-    assert href.startswith(
-        "https://cdn.flyyer.io/render/v2/tenant/deck/template?__v="
-    )
+    assert href.startswith("https://cdn.flyyer.io/render/v2/tenant/deck/template?__v=")
     assert href.endswith("&title=Hello+world%21")
     assert href == str(flyyer)
+
 
 def test_flyyer_render_url_encoding_with_extension():
     flyyer = FlyyerRender(
