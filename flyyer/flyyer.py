@@ -23,9 +23,11 @@ class FlyyerRender:
         deck: str,
         template: str,
         version: Optional[int] = None,
-        extension: str = "jpeg",
+        extension: Optional[str] = None,
         variables: Optional[Mapping[Any, Any]] = None,
         meta: Optional[FlyyerMeta] = None,
+        secret: Optional[str] = None,
+        strategy: Optional[str] = None,
     ):
         self.tenant = tenant
         self.deck = deck
@@ -34,25 +36,82 @@ class FlyyerRender:
         self.extension = extension
         self.variables = variables if variables else {}
         self.meta = meta if meta else {}
+        self.secret = secret
+        self.strategy = strategy
+        if strategy and strategy.lower() != "hmac" and strategy.lower() != "jwt":
+            raise Exception("Invalid `strategy`. Valid options are `HMAC` or `JWT`.")
+        if strategy and not secret:
+            raise Exception(
+                "Missing `secret`. You can find it in your project in Advanced settings."
+            )
+        if secret and not strategy:
+            raise Exception(
+                "Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`."
+            )
 
     def querystring(self) -> str:
-        defaults = {
-            "__v": self.meta.get(
-                "v", str(int(time()))
-            ),  # This forces crawlers to refresh the image
+        default_v = {
+            "__v": self.meta.get("v", str(int(time())))
+        }  # This forces crawlers to refresh the image
+        defaults_without_v = {
             "__id": self.meta.get("id"),
             "_w": self.meta.get("width"),
             "_h": self.meta.get("height"),
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
         }
-        return to_query({**defaults, **self.variables})
+        if self.strategy and self.secret:
+            key = self.secret.encode("ASCII")
+            if self.strategy.lower() == "hmac":
+                data = "#".join(
+                    [
+                        self.deck,
+                        self.template,
+                        self.version or "",
+                        self.extension or "",
+                        to_query(
+                            {
+                                **defaults_without_v,
+                                **self.variables,
+                            }
+                        ),
+                    ],
+                ).encode("ASCII")
+                __hmac = hmac.new(key, data, sha256).hexdigest()[:16]
+                return to_query(
+                    {
+                        **default_v,
+                        **defaults_without_v,
+                        **self.variables,
+                        "__hmac": __hmac,
+                    }
+                )
+            elif self.strategy.lower() == "jwt":
+                data = {
+                    "deck": self.deck,
+                    "template": self.template,
+                    "version": self.version,
+                    "ext": self.extension,
+                    **defaults_without_v,
+                    **self.variables,
+                }
+                __v = self.meta.get("v", str(int(time())))
+                __jwt = jwt.encode(data, key, algorithm="HS256", headers=None)
+                return to_query({"__v": __v, "__jwt": __jwt})
+        else:
+            return to_query({**default_v, **defaults_without_v, **self.variables})
 
     def href(self) -> str:
         query = self.querystring()
+        base_href = "https://cdn.flyyer.io/render/v2"
+        if self.strategy and self.strategy.lower() == "jwt":
+            return f"{base_href}/{self.tenant}?{query}"
+        final_href = f"{base_href}/{self.tenant}/{self.deck}/{self.template}"
         if self.version:
-            return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
-        return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
+            final_href += f".{self.version}"
+        if self.extension:
+            final_href += f".{self.extension}"
+        return f"{final_href}?{query}"
 
     def __str__(self):
         return self.href()
@@ -126,9 +185,7 @@ class Flyyer:
             final_version = self.meta.get("v", str(int(time())))
             return f"https://cdn.flyyer.io/v2/{self.project}/jwt-{signature}?__v={final_version}"
         else:
-            return (
-                f"https://cdn.flyyer.io/v2/{self.project}/{signature}/{query}{self.path}"
-            )
+            return f"https://cdn.flyyer.io/v2/{self.project}/{signature}/{query}{self.path}"
 
     def __str__(self):
         return self.href()

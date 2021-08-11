@@ -168,6 +168,25 @@ flyyer = FlyyerRender(
 )
 ```
 
+You can use signatures with Flyyer Render like below.
+
+```python
+from flyyer import FlyyerRender
+
+flyyer = FlyyerRender(
+    tenant="tenant",
+    deck="deck",
+    template="template",
+    variables={"title": "Hello world!"},
+    secret=key,
+    strategy="HMAC", # JWT
+)
+
+# Use this image in your <head/> tags
+url = flyyer.href()
+# > https://cdn.flyyer.io/render/v2/tenant/deck/template.jpeg?__v=d+&title=Hello+world%21&__hmac=1bea6d523496848c
+```
+
 **IMPORTANT: variables must be serializable.**
 
 To decode the URL for debugging purposes:
