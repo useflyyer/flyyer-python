@@ -64,21 +64,18 @@ class FlyyerRender:
             key = self.secret.encode("ASCII")
             if self.strategy.lower() == "hmac":
                 data = "#".join(
-                    filter(
-                        None,
-                        [
-                            self.deck,
-                            self.template,
-                            self.version,
-                            self.extension,
-                            to_query(
-                                {
-                                    **defaults_without_v,
-                                    **self.variables,
-                                }
-                            ),
-                        ],
-                    )
+                    [
+                        self.deck,
+                        self.template,
+                        self.version or "",
+                        self.extension,
+                        to_query(
+                            {
+                                **defaults_without_v,
+                                **self.variables,
+                            }
+                        ),
+                    ],
                 ).encode("ASCII")
                 __hmac = hmac.new(key, data, sha256).hexdigest()[:16]
                 return to_query(
