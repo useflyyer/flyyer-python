@@ -82,6 +82,8 @@ class FlyyerRender:
 
     def href(self) -> str:
         query = self.querystring()
+        if self.strategy and self.strategy.lower() == "jwt":
+            return f"https://cdn.flyyer.io/render/v2/{self.tenant}?{query}"
         if self.version:
             return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.version}.{self.extension}?{query}"
         return f"https://cdn.flyyer.io/render/v2/{self.tenant}/{self.deck}/{self.template}.{self.extension}?{query}"
