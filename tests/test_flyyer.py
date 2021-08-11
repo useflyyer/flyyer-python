@@ -78,6 +78,54 @@ def test_flyyer_render_encode_url_with_hmac():
     )
 
 
+def test_flyyer_render_encode_url_with_jwt_default_values():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    flyyer = FlyyerRender(
+        tenant="tenant",
+        deck="deck",
+        template="template",
+        version=4,
+        variables={"title": "Hello world!"},
+        secret=key,
+        strategy="JWT",
+    )
+    href = flyyer.href()
+    token = search(r'(.*)(jwt=)(.*)', href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    check = {'deck': 'deck', 'template': 'template', 'version': 4, 'extension': 'jpeg', '__id': None, '_w': None, '_h': None, '_res': None, '_ua': None, 'title': 'Hello world!'}
+    assert decoded == check
+    assert (
+        match(
+            r'https:\/\/cdn.flyyer.io\/render\/v2\/tenant\?__v=\d+&__jwt=.*',
+            href,
+        )
+        != None
+    )
+
+
+def test_flyyer_render_encode_url_with_jwt_with_meta():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    flyyer = FlyyerRender(
+        tenant="tenant",
+        deck="deck",
+        template="template",
+        secret=key,
+        strategy="JWT",
+        meta=FlyyerMeta(
+            agent="whatsapp",
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
+    )
+    href = flyyer.href()
+    token = search(r'(.*)(jwt=)(.*)', href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    check = {'deck': 'deck', 'template': 'template', 'version': None, 'extension': 'jpeg', '__id': 'dev forgot to slugify', '_w': '100', '_h': 200, '_res': None, '_ua': 'whatsapp'}
+    assert decoded == check
+    # assert decoded == check
+
+
 def test_flyyer_meta_parameters():
     flyyer = Flyyer(
         project="project",
