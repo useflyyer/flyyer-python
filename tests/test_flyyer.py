@@ -142,8 +142,6 @@ def test_flyyer_render_encode_url_with_jwt_default_values():
         "title": "Hello world!",
     }
     assert decoded == check
-    print("href")
-    print(href)
     assert (
         match(
             r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\?__v=\d+&__jwt=.*",
