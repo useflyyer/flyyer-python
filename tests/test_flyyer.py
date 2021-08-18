@@ -130,16 +130,18 @@ def test_flyyer_render_encode_url_with_jwt_default_values():
     token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     check = {
-        "deck": "deck",
-        "template": "template",
-        "version": 4,
-        "ext": "jpeg",
-        "__id": None,
-        "_w": None,
-        "_h": None,
-        "_res": None,
-        "_ua": None,
-        "title": "Hello world!",
+        "d": "deck",
+        "t": "template",
+        "v": 4,
+        "e": "jpeg",
+        "i": None,
+        "w": None,
+        "h": None,
+        "r": None,
+        "u": None,
+        "var": {
+            "title": "Hello world!",
+        }
     }
     assert decoded == check
     assert (
@@ -170,15 +172,15 @@ def test_flyyer_render_encode_url_with_jwt_with_meta():
     token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     check = {
-        "deck": "deck",
-        "template": "template",
-        "version": None,
-        "ext": None,
-        "__id": "dev forgot to slugify",
-        "_w": "100",
-        "_h": 200,
-        "_res": None,
-        "_ua": "whatsapp",
+        "d": "deck",
+        "t": "template",
+        "v": None,
+        "e": None,
+        "i": "dev forgot to slugify",
+        "w": "100",
+        "h": 200,
+        "r": None,
+        "u": "whatsapp",
     }
     assert decoded == check
     # assert decoded == check
