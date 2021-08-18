@@ -60,6 +60,14 @@ class FlyyerRender:
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
         }
+        jwt_defaults = {
+            "i": self.meta.get("id"),
+            "w": self.meta.get("width"),
+            "h": self.meta.get("height"),
+            "r": self.meta.get("resolution"),
+            "u": self.meta.get("agent"),
+            "var": self.variables,
+        }
         if self.strategy and self.secret:
             key = self.secret.encode("ASCII")
             if self.strategy.lower() == "hmac":
@@ -88,16 +96,14 @@ class FlyyerRender:
                 )
             elif self.strategy.lower() == "jwt":
                 data = {
-                    "deck": self.deck,
-                    "template": self.template,
-                    "version": self.version,
-                    "ext": self.extension,
-                    **defaults_without_v,
-                    **self.variables,
+                    "d": self.deck,
+                    "t": self.template,
+                    "v": self.version,
+                    "e": self.extension,
+                    **jwt_defaults,
                 }
-                __v = self.meta.get("v", str(int(time())))
                 __jwt = jwt.encode(data, key, algorithm="HS256", headers=None)
-                return to_query({"__v": __v, "__jwt": __jwt})
+                return to_query({"__jwt": __jwt, **default_v})
         else:
             return to_query({**default_v, **defaults_without_v, **self.variables})
 
