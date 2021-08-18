@@ -127,7 +127,7 @@ def test_flyyer_render_encode_url_with_jwt_default_values():
         strategy="JWT",
     )
     href = flyyer.href()
-    token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2]
+    token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2].split("&__v=")[0]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     check = {
         "d": "deck",
@@ -146,7 +146,7 @@ def test_flyyer_render_encode_url_with_jwt_default_values():
     assert decoded == check
     assert (
         match(
-            r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\?__v=\d+&__jwt=.*",
+            r"https:\/\/cdn.flyyer.io\/render\/v2\/tenant\?__jwt=.*?&__v=\d+",
             href,
         )
         != None
@@ -169,7 +169,7 @@ def test_flyyer_render_encode_url_with_jwt_with_meta():
         ),
     )
     href = flyyer.href()
-    token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2]
+    token = search(r"(.*)(jwt=)(.*)", href).groups(2)[2].split("&__v=")[0]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
     check = {
         "d": "deck",
@@ -181,9 +181,9 @@ def test_flyyer_render_encode_url_with_jwt_with_meta():
         "h": 200,
         "r": None,
         "u": "whatsapp",
+        "var": {},
     }
     assert decoded == check
-    # assert decoded == check
 
 
 def test_flyyer_meta_parameters():
