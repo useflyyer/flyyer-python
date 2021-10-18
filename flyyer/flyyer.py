@@ -132,9 +132,11 @@ class Flyyer:
         strategy: Optional[str] = None,
         variables: Optional[Mapping[Any, Any]] = None,
         meta: Optional[FlyyerMeta] = None,
+        default: Optional[str] = None,
     ):
         self.project = project
         self.path = path if path.startswith("/") else "/" + path
+        self.default = default
         self.secret = secret
         self.strategy = strategy
         self.variables = variables if variables else {}
@@ -160,6 +162,7 @@ class Flyyer:
             "_h": self.meta.get("height"),
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
+            "_def": self.default,
         }
         if ignoreV:
             defaults.pop("__v", None)

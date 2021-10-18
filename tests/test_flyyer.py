@@ -356,3 +356,31 @@ def test_flyyer_encode_url_with_jwt_without_slash_at_start():
     assert check["params"]["__id"] == "dev forgot to slugify"
     assert check["path"] == "/collections/col"
     assert decoded == check
+
+def test_flyyer_encodes_default_image_param():
+    flyyer0 = Flyyer(
+        project="project",
+        path="path",
+        default="/static/product/1.png"
+    )
+    href0 = flyyer0.href()
+    assert (
+        match(
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+&_def=%2Fstatic%2Fproduct%2F1.png\/path",
+            href0,
+        )
+        != None
+    )
+    flyyer1 = Flyyer(
+        project="project",
+        path="path",
+        default="https://www.flyyer.io/logo.png"
+    )
+    href1 = flyyer1.href()
+    assert (
+        match(
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=(\d+)&_def=https%3A%2F%2Fwww.flyyer.io%2Flogo.png\/path",
+            href1,
+        )
+        != None
+    )
