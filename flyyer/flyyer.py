@@ -60,14 +60,6 @@ class FlyyerRender:
             "_res": self.meta.get("resolution"),
             "_ua": self.meta.get("agent"),
         }
-        jwt_defaults = {
-            "i": self.meta.get("id"),
-            "w": self.meta.get("width"),
-            "h": self.meta.get("height"),
-            "r": self.meta.get("resolution"),
-            "u": self.meta.get("agent"),
-            "var": self.variables,
-        }
         if self.strategy and self.secret:
             key = self.secret.encode("ASCII")
             if self.strategy.lower() == "hmac":
@@ -95,6 +87,14 @@ class FlyyerRender:
                     }
                 )
             elif self.strategy.lower() == "jwt":
+                jwt_defaults = {
+                    "i": self.meta.get("id"),
+                    "w": self.meta.get("width"),
+                    "h": self.meta.get("height"),
+                    "r": self.meta.get("resolution"),
+                    "u": self.meta.get("agent"),
+                    "var": self.variables,
+                }
                 data = {
                     "d": self.deck,
                     "t": self.template,
@@ -152,21 +152,33 @@ class Flyyer:
                 "Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`."
             )
 
-    def params_hash(self, ignoreV) -> str:
-        defaults = {
-            "__v": self.meta.get(
-                "v", str(int(time()))
-            ),  # This forces crawlers to refresh the image
-            "__id": self.meta.get("id"),
-            "_w": self.meta.get("width"),
-            "_h": self.meta.get("height"),
-            "_res": self.meta.get("resolution"),
-            "_ua": self.meta.get("agent"),
-            "_def": self.default,
-        }
-        if ignoreV:
-            defaults.pop("__v", None)
-        return {**defaults, **self.variables}
+    def params_hash(self, ignoreV, isJWT=False) -> str:
+        if not isJWT:
+            defaults = {
+                "__v": self.meta.get(
+                    "v", str(int(time()))
+                ),  # This forces crawlers to refresh the image
+                "__id": self.meta.get("id"),
+                "_w": self.meta.get("width"),
+                "_h": self.meta.get("height"),
+                "_res": self.meta.get("resolution"),
+                "_ua": self.meta.get("agent"),
+                "_def": self.default,
+            }
+            if ignoreV:
+                defaults.pop("__v", None)
+            return {**defaults, **self.variables}
+        else:
+            jwt_defaults = {
+                "i": self.meta.get("id"),
+                "w": self.meta.get("width"),
+                "h": self.meta.get("height"),
+                "r": self.meta.get("resolution"),
+                "u": self.meta.get("agent"),
+                "def": self.default,
+                "var": self.variables,
+            }
+            return jwt_defaults
 
     def querystring(self, ignoreV=False) -> str:
         params = self.params_hash(ignoreV)
@@ -183,17 +195,16 @@ class Flyyer:
             data = (self.project + self.path + self.querystring(True)).encode("ASCII")
             return hmac.new(key, data, sha256).hexdigest()[:16]
         elif self.strategy and self.strategy.lower() == "jwt":
-            params = {k: v for k, v in self.params_hash(True).items() if v is not None}
-            data = {"params": params, "path": self.path}
+            data = {k: v for k, v in self.params_hash(True, True).items() if v is not None}
             return jwt.encode(data, key, algorithm="HS256", headers=None)
 
     def href(self) -> str:
-        query = self.querystring()
         signature = self.sign()
         if self.strategy and self.strategy.lower() == "jwt":
             final_version = self.meta.get("v", str(int(time())))
             return f"https://cdn.flyyer.io/v2/{self.project}/jwt-{signature}?__v={final_version}"
         else:
+            query = self.querystring()
             return f"https://cdn.flyyer.io/v2/{self.project}/{signature}/{query}{self.path}"
 
     def __str__(self):
