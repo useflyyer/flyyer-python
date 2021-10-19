@@ -170,13 +170,16 @@ class Flyyer:
             return {**defaults, **self.variables}
         else:
             jwt_defaults = {
-                "i": self.meta.get("id"),
-                "w": self.meta.get("width"),
-                "h": self.meta.get("height"),
-                "r": self.meta.get("resolution"),
-                "u": self.meta.get("agent"),
-                "def": self.default,
-                "var": self.variables,
+                "path": self.path,
+                "params": {
+                    "i": self.meta.get("id"),
+                    "w": self.meta.get("width"),
+                    "h": self.meta.get("height"),
+                    "r": self.meta.get("resolution"),
+                    "u": self.meta.get("agent"),
+                    "def": self.default,
+                    "var": self.variables,
+                },
             }
             return jwt_defaults
 
