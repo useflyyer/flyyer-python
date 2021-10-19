@@ -310,6 +310,7 @@ def test_flyyer_encode_url_with_jwt_default_values():
     href = flyyer.href()
     token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
+    assert decoded["params"]["var"] == {}
     assert flyyer.path == "/"
 
 
