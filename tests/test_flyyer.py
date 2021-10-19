@@ -1,6 +1,8 @@
 from urllib.parse import unquote
 from re import search, match
 import jwt
+import pytest
+
 
 from flyyer import __version__, FlyyerMeta, to_query, Flyyer, FlyyerRender
 
@@ -19,7 +21,6 @@ def test_complex_stringify():
     data = {"a": {"aa": "bar", "ab": "foo"}, "b": [{"c": "foo"}, {"c": "bar"}]}
     result = to_query(data)
     assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
-
 
 def test_flyyer_render_url_encoding():
     flyyer = FlyyerRender(
@@ -429,3 +430,17 @@ def test_flyyer_encode_url_with_jwt_and_default_image_relative():
     assert decoded["params"]["h"] == 200
     assert decoded["params"]["def"] == "/logo.png"
     assert decoded["path"] == "/collections/col"
+
+def test_flyyer_wrong_jwt_key_throws():
+    key1 = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    key2 = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0ty"
+    flyyer = Flyyer(
+        project="project",
+        secret=key1,
+        strategy="JWT",
+        path="collections/col",
+    )
+    href = flyyer.href()
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    assert jwt.decode(token, key1, algorithms=["HS256"])
+    pytest.raises(jwt.exceptions.InvalidSignatureError, jwt.decode, *[token, key2], algorithms=["HS256"])
