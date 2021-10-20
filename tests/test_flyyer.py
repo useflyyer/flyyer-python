@@ -1,6 +1,8 @@
 from urllib.parse import unquote
 from re import search, match
 import jwt
+import pytest
+
 
 from flyyer import __version__, FlyyerMeta, to_query, Flyyer, FlyyerRender
 
@@ -19,7 +21,6 @@ def test_complex_stringify():
     data = {"a": {"aa": "bar", "ab": "foo"}, "b": [{"c": "foo"}, {"c": "bar"}]}
     result = to_query(data)
     assert unquote(result) == "a[aa]=bar&a[ab]=foo&b[0][c]=foo&b[1][c]=bar"
-
 
 def test_flyyer_render_url_encoding():
     flyyer = FlyyerRender(
@@ -309,9 +310,8 @@ def test_flyyer_encode_url_with_jwt_default_values():
     href = flyyer.href()
     token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    params = {k: v for k, v in flyyer.params_hash(True).items() if v is not None}
-    check = {"params": params, "path": flyyer.path}
-    assert decoded == check
+    assert decoded["params"]["var"] == {}
+    assert flyyer.path == "/"
 
 
 def test_flyyer_encode_url_with_jwt_with_meta():
@@ -325,14 +325,16 @@ def test_flyyer_encode_url_with_jwt_with_meta():
             width="100",
             height=200,
         ),
+        variables={"custom": True}
     )
     href = flyyer.href()
     token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    params = {k: v for k, v in flyyer.params_hash(True).items() if v is not None}
-    check = {"params": params, "path": flyyer.path}
-    assert check["params"]["__id"] == "dev forgot to slugify"
-    assert decoded == check
+    assert decoded["params"]["i"] == "dev forgot to slugify"
+    assert decoded["params"]["w"] == "100"
+    assert decoded["params"]["h"] == 200
+    assert decoded["path"] == "/"
+    assert decoded["params"]["var"] == { "custom": True}
 
 
 def test_flyyer_encode_url_with_jwt_without_slash_at_start():
@@ -351,8 +353,95 @@ def test_flyyer_encode_url_with_jwt_without_slash_at_start():
     href = flyyer.href()
     token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
     decoded = jwt.decode(token, key, algorithms=["HS256"])
-    params = {k: v for k, v in flyyer.params_hash(True).items() if v is not None}
-    check = {"params": params, "path": flyyer.path}
-    assert check["params"]["__id"] == "dev forgot to slugify"
-    assert check["path"] == "/collections/col"
-    assert decoded == check
+    assert decoded["params"]["i"] == "dev forgot to slugify"
+    assert decoded["params"]["w"] == "100"
+    assert decoded["params"]["h"] == 200
+    assert decoded["path"] == "/collections/col"
+
+def test_flyyer_encodes_default_image_param():
+    flyyer0 = Flyyer(
+        project="project",
+        path="path",
+        default="/static/product/1.png"
+    )
+    href0 = flyyer0.href()
+    assert (
+        match(
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=\d+&_def=%2Fstatic%2Fproduct%2F1.png\/path",
+            href0,
+        )
+        != None
+    )
+    flyyer1 = Flyyer(
+        project="project",
+        path="path",
+        default="https://www.flyyer.io/logo.png"
+    )
+    href1 = flyyer1.href()
+    assert (
+        match(
+            r"https:\/\/cdn.flyyer.io\/v2\/project\/_\/__v=(\d+)&_def=https%3A%2F%2Fwww.flyyer.io%2Flogo.png\/path",
+            href1,
+        )
+        != None
+    )
+
+def test_flyyer_encode_url_with_jwt_and_default_image_absolute():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    flyyer = Flyyer(
+        project="project",
+        secret=key,
+        strategy="JWT",
+        path="collections/col",
+        variables={
+            "rooms": "3",
+            "baths": "2",
+            "sqm": 120,
+        },
+        default="https://www.flyyer.io/logo.png"
+    )
+    href = flyyer.href()
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    assert decoded["params"]["var"]["sqm"] == 120
+    assert decoded["params"]["var"]["rooms"] == "3"
+    assert decoded["params"]["var"]["baths"] == "2"
+    assert decoded["params"]["def"] == "https://www.flyyer.io/logo.png"
+    assert decoded["path"] == "/collections/col"
+
+def test_flyyer_encode_url_with_jwt_and_default_image_relative():
+    key = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    flyyer = Flyyer(
+        project="project",
+        secret=key,
+        strategy="JWT",
+        path="collections/col",
+        meta=FlyyerMeta(
+            id="dev forgot to slugify",
+            width="100",
+            height=200,
+        ),
+        default="/logo.png"
+    )
+    href = flyyer.href()
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    decoded = jwt.decode(token, key, algorithms=["HS256"])
+    assert decoded["params"]["i"] == "dev forgot to slugify"
+    assert decoded["params"]["w"] == "100"
+    assert decoded["params"]["h"] == 200
+    assert decoded["params"]["def"] == "/logo.png"
+    assert decoded["path"] == "/collections/col"
+
+def test_flyyer_wrong_jwt_key_throws():
+    key1 = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0tx"
+    key2 = "sg1j0HVy9bsMihJqa8Qwu8ZYgCYHG0ty"
+    flyyer = Flyyer(
+        project="project",
+        secret=key1,
+        strategy="JWT",
+        path="collections/col",
+    )
+    href = flyyer.href()
+    token = search(r"(.*)(jwt-)(.*)(\?__v=\d+)", href).groups(2)[2]
+    assert jwt.decode(token, key1, algorithms=["HS256"])
+    pytest.raises(jwt.exceptions.InvalidSignatureError, jwt.decode, *[token, key2], algorithms=["HS256"])
