@@ -152,7 +152,7 @@ class Flyyer:
                 "Got `secret` but missing `strategy`. Valid options are `HMAC` or `JWT`."
             )
 
-    def params_hash(self, ignoreV, isJWT=False) -> str:
+    def params_hash(self, ignoreV, isJWT=False) -> Union(str, dict):
         if not isJWT:
             defaults = {
                 "__v": self.meta.get(
